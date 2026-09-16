@@ -1029,6 +1029,7 @@ export const registerRoutes = async (
     resourceMetadataDAL,
     permissionService,
     folderDAL,
+    projectEnvDAL,
     kmsService
   });
 
