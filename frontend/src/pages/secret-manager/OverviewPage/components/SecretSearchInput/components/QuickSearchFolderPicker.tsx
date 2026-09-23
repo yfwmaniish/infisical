@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
 import { CheckIcon, ChevronDownIcon, ChevronRightIcon, FolderIcon } from "lucide-react";
 
 import { Button, IconButton, Popover, PopoverContent, PopoverTrigger } from "@app/components/v3";
@@ -31,64 +32,66 @@ const FolderNode = ({ projectId, environment, path, name, value, onSelect }: Fol
 
   return (
     <li>
-      <div className="flex min-w-0 items-center gap-1">
-        <IconButton
-          variant="ghost"
-          size="xs"
-          aria-label={`${isExpanded ? "Collapse" : "Expand"} ${path}`}
-          aria-expanded={isExpanded}
-          onClick={() => setIsExpanded((previous) => !previous)}
-        >
-          {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
-        </IconButton>
-        <Button
-          variant={value === path ? "project" : "ghost"}
-          size="sm"
-          className="min-w-0 flex-1 justify-start"
-          title={path}
-          aria-label={`Search in ${path}`}
-          aria-pressed={value === path}
-          onClick={() => onSelect(path)}
-        >
-          <FolderIcon className="shrink-0 text-folder" />
-          <span className="truncate">{name}</span>
-          {value === path && <CheckIcon className="ml-auto shrink-0" />}
-        </Button>
-      </div>
-      {isExpanded && (
-        <ul className="ml-3.5 border-l border-border pl-2">
-          {isPending && (
-            <li role="status" className="px-2 py-1.5 text-xs text-accent">
-              Loading folders...
-            </li>
-          )}
-          {isError && (
-            <li className="px-2 py-1.5 text-xs text-accent">
-              Could not load folders.
-              <Button variant="ghost" size="xs" onClick={() => refetch()}>
-                Retry
-              </Button>
-            </li>
-          )}
-          {!isPending && !isError && folders?.length === 0 && (
-            <li className="px-2 py-1.5 text-xs text-accent">No subfolders</li>
-          )}
-          {folders
-            ?.slice()
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map((folder) => (
-              <FolderNode
-                key={folder.id}
-                projectId={projectId}
-                environment={environment}
-                path={`${path === "/" ? "" : path}/${folder.name}`}
-                name={folder.name}
-                value={value}
-                onSelect={onSelect}
-              />
-            ))}
-        </ul>
-      )}
+      <CollapsiblePrimitive.Root open={isExpanded} onOpenChange={setIsExpanded}>
+        <div className="flex min-w-0 items-center gap-1">
+          <CollapsiblePrimitive.Trigger asChild>
+            <IconButton
+              variant="ghost"
+              size="xs"
+              aria-label={`${isExpanded ? "Collapse" : "Expand"} ${path}`}
+            >
+              {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </IconButton>
+          </CollapsiblePrimitive.Trigger>
+          <Button
+            variant={value === path ? "project" : "ghost"}
+            size="sm"
+            className="min-w-0 flex-1 justify-start"
+            title={path}
+            aria-label={`Search in ${path}`}
+            aria-pressed={value === path}
+            onClick={() => onSelect(path)}
+          >
+            <FolderIcon className="shrink-0 text-folder" />
+            <span className="truncate">{name}</span>
+            {value === path && <CheckIcon className="ml-auto shrink-0" />}
+          </Button>
+        </div>
+        <CollapsiblePrimitive.Content>
+          <ul className="ml-3.5 border-l border-border pl-2">
+            {isPending && (
+              <li role="status" className="px-2 py-1.5 text-xs text-accent">
+                Loading folders...
+              </li>
+            )}
+            {isError && (
+              <li className="px-2 py-1.5 text-xs text-accent">
+                Could not load folders.
+                <Button variant="ghost" size="xs" onClick={() => refetch()}>
+                  Retry
+                </Button>
+              </li>
+            )}
+            {!isPending && !isError && folders?.length === 0 && (
+              <li className="px-2 py-1.5 text-xs text-accent">No subfolders</li>
+            )}
+            {folders
+              ?.slice()
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((folder) => (
+                <FolderNode
+                  key={folder.id}
+                  projectId={projectId}
+                  environment={environment}
+                  path={`${path === "/" ? "" : path}/${folder.name}`}
+                  name={folder.name}
+                  value={value}
+                  onSelect={onSelect}
+                />
+              ))}
+          </ul>
+        </CollapsiblePrimitive.Content>
+      </CollapsiblePrimitive.Root>
     </li>
   );
 };
